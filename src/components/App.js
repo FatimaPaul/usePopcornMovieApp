@@ -5,6 +5,7 @@ import Box from "./Box";
 import ListMovies from "./ListMovies";
 import WatchedSummary from "./WatchedSummary";
 import WatchMoviesList from "./WatchMoviesList";
+import MovieDetails from "./MovieDetails";
 
 // const tempMovieData = [
 //   {
@@ -59,46 +60,69 @@ const average = (arr) =>
 const KEY = "5da69d9f";
 
 export default function App() {
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const query = "sdfsdfsdf";
+  const [selectedID, setSelectedID] = useState(null);
+  // const query = "sdfsdfsdf";
 
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        const data = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-        );
+  function handleSelectedMovie(id) {
+    setSelectedID((selectedID) => (id === selectedID ? null : id));
+  }
 
-        if (!data.ok) {
-          throw new Error("internet down");
+  function handleCloseBtn() {
+    setSelectedID(null);
+  }
+
+  function handleWatchedMovie(movie) {
+    setWatched((watched) => [...watched, movie]);
+  }
+
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const data = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          );
+
+          if (!data.ok) {
+            throw new Error("internet down");
+          }
+
+          const result = await data.json();
+
+          if (result.Response === "False") {
+            throw new Error("Movie not Found");
+          }
+
+          setMovies(result.Search);
+          setIsLoading(false);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
         }
-
-        const result = await data.json();
-
-        if (result.Response === "False") {
-          throw new Error("Movie not Found");
-        }
-
-        setMovies(result.Search);
-        setIsLoading(false);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
       }
-    }
-    fetchMovies();
-  }, []);
 
-  console.log(error);
+      if (query.length < 3) {
+        setMovies([]);
+        setError("Please search by a word..");
+        return;
+      }
+
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <>
-      <Navbar>
+      <Navbar query={query} setQuery={setQuery}>
         <p className="num-results">
           Found <strong>{movies.length}</strong> results
         </p>
@@ -109,22 +133,32 @@ export default function App() {
           {/* {isLoading ? <Loader /> : } */}
           {isLoading && <Loader />}
           {!isLoading && error && <ErrMsg msg={error} />}
-          {!isLoading && !error && <ListMovies movies={movies} />}
+          {!isLoading && !error && (
+            <ListMovies movies={movies} onMovieSelect={handleSelectedMovie} />
+          )}
         </Box>
-        <Box
-          element={
+
+        <Box>
+          {selectedID ? (
+            <MovieDetails
+              selectedID={selectedID}
+              closeBtn={handleCloseBtn}
+              onWatchedMovie={handleWatchedMovie}
+              watched={watched}
+            />
+          ) : (
             <>
               <WatchedSummary watched={watched} average={average} />
               <WatchMoviesList watched={watched} />
             </>
-          }
-        />
+          )}
+        </Box>
       </Main>
     </>
   );
 }
 
-function Loader() {
+export function Loader() {
   return <p className="loader">Loading...</p>;
 }
 

@@ -26,8 +26,8 @@ export default function Star({
   color = "#ee0987",
   size = 40,
   className = "",
-  msg = [],
-  defaultRating = 0,
+  msg,
+  defaultRating = "",
   onSet,
 }) {
   const textStyle = {
@@ -38,6 +38,7 @@ export default function Star({
 
   const [rating, setRating] = useState(defaultRating);
   const [tempRating, setTempRating] = useState(0);
+  onSet(rating);
   return (
     <div style={styleContainer}>
       <div style={starContainer}>
