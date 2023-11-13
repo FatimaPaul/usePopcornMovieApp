@@ -61,6 +61,40 @@ export default function MovieDetails({
     },
     [selectedID]
   );
+
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `Movie | ${title}`;
+
+      //clean up function
+      return function () {
+        document.title = "usePopcorn";
+        console.log("cleaned up" + title);
+      };
+    },
+
+    [title]
+  );
+
+  // keypress events
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          closeBtn();
+          console.log("yes");
+        }
+      }
+      document.addEventListener("keydown", callback);
+
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [closeBtn]
+  );
+
   return (
     <div className="details">
       {loader ? (
