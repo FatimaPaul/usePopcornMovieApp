@@ -15,10 +15,16 @@ const KEY = "5da69d9f";
 export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedID, setSelectedID] = useState(null);
+
+  // initializing function in state
+  const [watched, setWatched] = useState(function () {
+    const stored = localStorage.getItem("watched");
+    return JSON.parse(stored);
+  });
+
   // const query = "sdfsdfsdf";
 
   function handleSelectedMovie(id) {
@@ -31,7 +37,19 @@ export default function App() {
 
   function handleWatchedMovie(movie) {
     setWatched((watched) => [...watched, movie]);
+    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
+
+  function handleDeleteMovie(id) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
 
   useEffect(
     function () {
@@ -112,7 +130,10 @@ export default function App() {
           ) : (
             <>
               <WatchedSummary watched={watched} average={average} />
-              <WatchMoviesList watched={watched} />
+              <WatchMoviesList
+                watched={watched}
+                DeleteMovie={handleDeleteMovie}
+              />
             </>
           )}
         </Box>

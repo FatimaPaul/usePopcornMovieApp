@@ -30,6 +30,8 @@ export default function MovieDetails({
     imdbID,
   } = movie;
 
+  // const [avgRating, setAvgRating] = useState(0);
+
   function handleAddBtn() {
     const newWatchedMovie = {
       title,
@@ -41,8 +43,20 @@ export default function MovieDetails({
       userRating,
     };
     onWatchedMovie(newWatchedMovie);
+    // setAvgRating(Number(imdbRating));
+    // setAvgRating((avg) => (avg + userRating) / 2);
+    // // console.log(avgRating); //0
+    // console.log(avgRating);
     closeBtn();
   }
+
+  // if (imdbRating > 8) {
+  //   const [fav, setFav] = useState(true);
+  // }
+
+  // if (imdbRating > 8) {
+  //   return <p>JSX</p>;
+  // }
 
   useEffect(
     function () {
@@ -70,7 +84,7 @@ export default function MovieDetails({
       //clean up function
       return function () {
         document.title = "usePopcorn";
-        console.log("cleaned up" + title);
+        // console.log("cleaned up" + title);
       };
     },
 
